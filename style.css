@@ -41,6 +41,17 @@ h1 {
     margin-bottom: 30px;
 }
 
+/* プライバシーの文言 */
+.privacy-note {
+    font-size: 0.85rem;
+    color: #666;
+    background-color: #f4f4f4;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
 /* パスワード入力フィールド */
 .password-input {
     width: 100%;

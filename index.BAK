@@ -11,7 +11,7 @@
         <h1>🔐 パスワード強度チェッカー</h1>
 
         <div class="privacy-note">
-            このツールは完全に <strong>ブラウザー内</strong> で動作します。<br>
+            このツールは完全に <strong>ブラウザ内</strong> で動作します。<br>
             入力されたパスワードは <strong>外部に送信されず</strong>、保存もされません。
         </div>
 
