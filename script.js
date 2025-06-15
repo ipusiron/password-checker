@@ -74,6 +74,8 @@ function checkPasswordStrength(password) {
         special: false
     };
 
+    const lowerPassword = password.toLowerCase();
+
     // 空のパスワードチェック
     if (password.length === 0) {
         return { score: 0, strength: '', criteria, feedback: [] };
@@ -123,10 +125,15 @@ function checkPasswordStrength(password) {
     if (password.length >= 12) score += 10;
     if (password.length >= 16) score += 10;
 
-    // よく使われるパスワードチェック
-    if (commonPasswords.includes(password.toLowerCase())) {
+    // よく使われるパスワードチェック（完全一致）
+    if (commonPasswords.includes(lowerPassword)) {
         score = Math.max(score - 50, 0);
-        feedback.unshift('⚠️ よく使われる危険なパスワードです！');
+        feedback.unshift('⚠️ よく使われる危険なパスワードそのものです！');
+    }
+    // よく使われる単語が含まれている（部分一致）
+    else if (commonPasswords.some(word => word && lowerPassword.includes(word))) {
+        score = Math.max(score - 30, 0);
+        feedback.unshift('⚠️ よく使われる単語が一部に含まれています');
     }
 
     // 連続する文字チェック
