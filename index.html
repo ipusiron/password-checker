@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワード強度チェッカー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 50px 15px 15px;
+            font-size: 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+            font-family: monospace;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 20px;
+            user-select: none;
+            transition: color 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: #667eea;
+        }
+
+        .strength-meter {
+            height: 8px;
+            background-color: #e1e8ed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .strength-meter-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .strength-text {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 28px;
+        }
+
+        .criteria-list {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .criteria-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .criteria-item.valid {
+            color: #28a745;
+        }
+
+        .criteria-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .suggestions {
+            background-color: #fff9c4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #856404;
+            display: none;
+        }
+
+        .suggestions.show {
+            display: block;
+        }
+
+        .suggestions h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .suggestions ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .suggestions li:before {
+            content: "▸ ";
+            margin-right: 5px;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        /* 強度レベルごとの色 */
+        .strength-very-weak { color: #dc3545; }
+        .strength-weak { color: #fd7e14; }
+        .strength-fair { color: #ffc107; }
+        .strength-good { color: #28a745; }
+        .strength-strong { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 パスワード強度チェッカー</h1>
+        
+        <div class="input-group">
+            <input 
+                type="password" 
+                id="passwordInput" 
+                class="password-input" 
+                placeholder="パスワードを入力してください"
+                autocomplete="off"
+            >
+            <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+
+        <div class="strength-meter">
+            <div class="strength-meter-fill" id="strengthMeterFill"></div>
+        </div>
+
+        <div class="strength-text" id="strengthText"></div>
+
+        <div class="score-display" id="scoreDisplay">0</div>
+
+        <div class="criteria-list">
+            <div class="criteria-item" id="lengthCriteria">
+                <span class="criteria-icon">❌</span>
+                <span>8文字以上</span>
+            </div>
+            <div class="criteria-item" id="uppercaseCriteria">
+                <span class="criteria-icon">❌</span>
+                <span>大文字を含む（A-Z）</span>
+            </div>
+            <div class="criteria-item" id="lowercaseCriteria">
+                <span class="criteria-icon">❌</span>
+                <span>小文字を含む（a-z）</span>
+            </div>
+            <div class="criteria-item" id="numberCriteria">
+                <span class="criteria-icon">❌</span>
+                <span>数字を含む（0-9）</span>
+            </div>
+            <div class="criteria-item" id="specialCriteria">
+                <span class="criteria-icon">❌</span>
+                <span>特殊文字を含む（!@#$%など）</span>
+            </div>
+        </div>
+
+        <div class="suggestions" id="suggestions">
+            <h3>💡 改善のヒント</h3>
+            <ul id="suggestionsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        const strengthMeterFill = document.getElementById('strengthMeterFill');
+        const strengthText = document.getElementById('strengthText');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const suggestions = document.getElementById('suggestions');
+        const suggestionsList = document.getElementById('suggestionsList');
+
+        // よく使われる弱いパスワードのリスト
+        const commonPasswords = [
+            'password', '123456', '12345678', 'qwerty', 'abc123', 
+            'password123', 'admin', 'letmein', 'welcome', 'monkey',
+            'dragon', 'baseball', 'iloveyou', 'trustno1', 'sunshine'
+        ];
+
+        // パスワードの表示/非表示切り替え
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // パスワード強度チェック
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const result = checkPasswordStrength(password);
+            updateUI(result);
+        });
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = [];
+            const criteria = {
+                length: false,
+                uppercase: false,
+                lowercase: false,
+                number: false,
+                special: false
+            };
+
+            // 空のパスワードチェック
+            if (password.length === 0) {
+                return { score: 0, strength: '', criteria, feedback: [] };
+            }
+
+            // 長さチェック
+            if (password.length >= 8) {
+                score += 20;
+                criteria.length = true;
+            } else {
+                feedback.push(`あと${8 - password.length}文字追加してください`);
+            }
+
+            // 大文字チェック
+            if (/[A-Z]/.test(password)) {
+                score += 20;
+                criteria.uppercase = true;
+            } else {
+                feedback.push('大文字（A-Z）を追加してください');
+            }
+
+            // 小文字チェック
+            if (/[a-z]/.test(password)) {
+                score += 20;
+                criteria.lowercase = true;
+            } else {
+                feedback.push('小文字（a-z）を追加してください');
+            }
+
+            // 数字チェック
+            if (/[0-9]/.test(password)) {
+                score += 20;
+                criteria.number = true;
+            } else {
+                feedback.push('数字（0-9）を追加してください');
+            }
+
+            // 特殊文字チェック
+            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                score += 20;
+                criteria.special = true;
+            } else {
+                feedback.push('特殊文字（!@#$%など）を追加してください');
+            }
+
+            // ボーナスポイント
+            if (password.length >= 12) score += 10;
+            if (password.length >= 16) score += 10;
+
+            // よく使われるパスワードチェック
+            if (commonPasswords.includes(password.toLowerCase())) {
+                score = Math.max(score - 50, 0);
+                feedback.unshift('⚠️ よく使われる危険なパスワードです！');
+            }
+
+            // 連続する文字チェック
+            if (/(.)\1{2,}/.test(password)) {
+                score = Math.max(score - 10, 0);
+                feedback.push('同じ文字の連続を避けてください');
+            }
+
+            // 強度判定
+            let strength = '';
+            if (score <= 20) strength = 'very-weak';
+            else if (score <= 40) strength = 'weak';
+            else if (score <= 60) strength = 'fair';
+            else if (score <= 80) strength = 'good';
+            else strength = 'strong';
+
+            return { score, strength, criteria, feedback };
+        }
+
+        function updateUI(result) {
+            const { score, strength, criteria, feedback } = result;
+
+            // スコア表示
+            scoreDisplay.textContent = score;
+            scoreDisplay.className = 'score-display';
+            
+            // 強度メーター更新
+            strengthMeterFill.style.width = `${score}%`;
+            
+            // 強度テキスト更新
+            const strengthLabels = {
+                '': '',
+                'very-weak': '非常に弱い',
+                'weak': '弱い',
+                'fair': '普通',
+                'good': '良い',
+                'strong': '強力'
+            };
+            
+            strengthText.textContent = strengthLabels[strength];
+            strengthText.className = `strength-text strength-${strength}`;
+            
+            // 強度に応じた色
+            const colors = {
+                '': '#e1e8ed',
+                'very-weak': '#dc3545',
+                'weak': '#fd7e14',
+                'fair': '#ffc107',
+                'good': '#28a745',
+                'strong': '#007bff'
+            };
+            
+            strengthMeterFill.style.backgroundColor = colors[strength];
+            if (strength) scoreDisplay.classList.add(`strength-${strength}`);
+
+            // 条件チェック更新
+            updateCriteria('lengthCriteria', criteria.length);
+            updateCriteria('uppercaseCriteria', criteria.uppercase);
+            updateCriteria('lowercaseCriteria', criteria.lowercase);
+            updateCriteria('numberCriteria', criteria.number);
+            updateCriteria('specialCriteria', criteria.special);
+
+            // 改善提案更新
+            if (feedback.length > 0 && score < 100) {
+                suggestions.classList.add('show');
+                suggestionsList.innerHTML = feedback.map(f => `<li>${f}</li>`).join('');
+            } else {
+                suggestions.classList.remove('show');
+            }
+        }
+
+        function updateCriteria(id, isValid) {
+            const element = document.getElementById(id);
+            const icon = element.querySelector('.criteria-icon');
+            
+            if (isValid) {
+                element.classList.add('valid');
+                icon.textContent = '✅';
+            } else {
+                element.classList.remove('valid');
+                icon.textContent = '❌';
+            }
+        }
+    </script>
+</body>
+</html>
+
