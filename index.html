@@ -22,14 +22,15 @@
         </div>
 
         <div class="input-group">
-            <input 
-                type="password" 
-                id="passwordInput" 
-                class="password-input" 
+            <label for="passwordInput">パスワード</label>
+            <input
+                type="password"
+                id="passwordInput"
+                class="password-input"
                 placeholder="パスワードを入力してください"
                 autocomplete="off"
             >
-            <span class="toggle-password" id="togglePassword">👁️</span>
+            <span class="toggle-password" id="togglePassword" aria-label="パスワード表示切替">👁️</span>
         </div>
 
         <div class="strength-meter">
