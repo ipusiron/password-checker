@@ -174,7 +174,7 @@ index.html を右クリック → 「Open with Live Server」
 
 #### 回避策③ 任意の Web サーバでホスティングする
 
-Apache、Nginx、GitHub Pages、Netlify などの一般的な HTTP サーバで公開すれば、fetch() は正常に動作します。
+Apache、Nginx、GitHub Pages、Netlify などの一般的な HTTP サーバーで公開すれば、fetch() は正常に動作します。
 
 ## 📝 ライセンス
 
