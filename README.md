@@ -83,12 +83,12 @@
 git clone https://github.com/ipusiron/password-checker.git
 ```
 
-2. プロジェクトフォルダに移動
+2. プロジェクトフォルダーに移動
 ```bash
 cd password-checker
 ```
 
-3. `index.html`をブラウザで開く
+3. `index.html`をブラウザーで開く
 ```bash
 open index.html  # macOS
 start index.html # Windows
@@ -164,7 +164,7 @@ head -n 1000 /path/to/rockyou.txt > common-passwords.txt
 python3 -m http.server 8000
 ```
 
-その後、ブラウザで http://localhost:8000/index.html にアクセスします。
+その後、ブラウザーで http://localhost:8000/index.html にアクセスします。
 
 #### 回避策② VS Code + Live Server 拡張を使用
 
@@ -172,7 +172,7 @@ python3 -m http.server 8000
 
 index.html を右クリック → 「Open with Live Server」
 
-#### 回避策③ 任意の Web サーバでホスティングする
+#### 回避策③ 任意の Web サーバーでホスティングする
 
 Apache、Nginx、GitHub Pages、Netlify などの一般的な HTTP サーバーで公開すれば、fetch() は正常に動作します。
 
