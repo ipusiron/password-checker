@@ -1,0 +1,197 @@
+/* リセットと基本設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ボディのスタイル */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, 
+                 "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* メインコンテナ */
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* 見出し */
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* 入力グループ */
+.input-group {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+/* パスワード入力フィールド */
+.password-input {
+    width: 100%;
+    padding: 15px 50px 15px 15px;
+    font-size: 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    transition: border-color 0.3s;
+    font-family: monospace;
+}
+
+.password-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* パスワード表示切り替えボタン */
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 20px;
+    user-select: none;
+    transition: color 0.3s;
+}
+
+.toggle-password:hover {
+    color: #667eea;
+}
+
+/* 強度メーター */
+.strength-meter {
+    height: 8px;
+    background-color: #e1e8ed;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.strength-meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 4px;
+}
+
+/* 強度テキスト */
+.strength-text {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    min-height: 28px;
+}
+
+/* スコア表示 */
+.score-display {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #666;
+}
+
+/* 評価基準リスト */
+.criteria-list {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.criteria-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.criteria-item:last-child {
+    margin-bottom: 0;
+}
+
+.criteria-item.valid {
+    color: #28a745;
+}
+
+.criteria-icon {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+/* 改善提案 */
+.suggestions {
+    background-color: #fff9c4;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #856404;
+    display: none;
+}
+
+.suggestions.show {
+    display: block;
+}
+
+.suggestions h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #856404;
+}
+
+.suggestions ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.suggestions li:before {
+    content: "▸ ";
+    margin-right: 5px;
+}
+
+/* 強度レベルごとの色 */
+.strength-very-weak { color: #dc3545; }
+.strength-weak { color: #fd7e14; }
+.strength-fair { color: #ffc107; }
+.strength-good { color: #28a745; }
+.strength-strong { color: #007bff; }
+
+/* レスポンシブデザイン */
+@media (max-width: 600px) {
+    .container {
+        padding: 30px 20px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    .password-input {
+        font-size: 14px;
+        padding: 12px 45px 12px 12px;
+    }
+    
+    .score-display {
+        font-size: 36px;
+    }
+}

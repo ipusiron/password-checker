@@ -72,15 +72,6 @@ xdg-open index.html # Linux
 - **JavaScript** (Vanilla) - ロジックとDOM操作
 - **正規表現** - パスワードパターンの検証
 
-## 📁 プロジェクト構造
-
-```
-password-strength-checker/
-├── index.html      # メインファイル（HTML/CSS/JS統合）
-├── README.md       # このファイル
-└── screenshot.png  # スクリーンショット（オプション）
-```
-
 ## 📝 ライセンス
 
 [MIT License](LICENSE) - ご自由にお使いください。
