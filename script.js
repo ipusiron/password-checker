@@ -8,11 +8,21 @@ const suggestions = document.getElementById('suggestions');
 const suggestionsList = document.getElementById('suggestionsList');
 
 // よく使われる弱いパスワードのリスト
-const commonPasswords = [
-    'password', '123456', '12345678', 'qwerty', 'abc123', 
-    'password123', 'admin', 'letmein', 'welcome', 'monkey',
-    'dragon', 'baseball', 'iloveyou', 'trustno1', 'sunshine'
-];
+let commonPasswords = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('common-passwords.txt')
+        .then(response => response.text())
+        .then(text => {
+            // 改行で分割、空行除去
+            commonPasswords = text.split('\n')
+                                  .map(p => p.trim())
+                                  .filter(p => p.length > 0);
+        })
+        .catch(error => {
+            console.error('パスワードリストの読み込みに失敗しました:', error);
+        });
+});
 
 // 強度ラベルの定義
 const strengthLabels = {
