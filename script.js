@@ -125,15 +125,28 @@ function checkPasswordStrength(password) {
     if (password.length >= 12) score += 10;
     if (password.length >= 16) score += 10;
 
-    // よく使われるパスワードチェック（完全一致）
+    // 完全一致チェック
     if (commonPasswords.includes(lowerPassword)) {
         score = Math.max(score - 50, 0);
         feedback.unshift('⚠️ よく使われる危険なパスワードそのものです！');
-    }
-    // よく使われる単語が含まれている（部分一致）
-    else if (commonPasswords.some(word => word && lowerPassword.includes(word))) {
-        score = Math.max(score - 30, 0);
-        feedback.unshift('⚠️ よく使われる単語が一部に含まれています');
+    } else {
+        // 部分一致チェック（曖昧一致）
+        const matchedWord = commonPasswords.find(word => word && lowerPassword.includes(word));
+        if (matchedWord) {
+            if (password.length < 12) {
+                score = Math.max(score - 30, 0);
+                feedback.unshift(`⚠️ よく使われる単語 "${matchedWord}" が含まれています`);
+            } else if (password.length < 16) {
+                score = Math.max(score - 10, 0);
+                feedback.unshift(`⚠️ 一部に危険な単語 "${matchedWord}" が含まれています`);
+            } else if (!(criteria.uppercase && criteria.special)) {
+                score = Math.max(score - 10, 0);
+                feedback.unshift(`⚠️ 長くても構成が単純で "${matchedWord}" を含むため減点されます`);
+            } else {
+                // 減点なし、注意だけ表示
+                feedback.unshift(`ℹ️ 注意：よく使われる単語 "${matchedWord}" が含まれていますが、構成が十分に強力です`);
+            }
+        }
     }
 
     // 連続する文字チェック
