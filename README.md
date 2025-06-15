@@ -120,6 +120,35 @@ xdg-open index.html # Linux
 head -n 1000 /path/to/rockyou.txt > common-passwords.txt
 ```
 
+## ⚠️ ローカルでの動作とCORS制限について
+
+本ツールは、`common-passwords.txt` を JavaScript の `fetch()` で読み込んで使用しています。  
+このため、ローカル環境で `index.html` を直接ダブルクリックして `file://` スキームで開くと、以下のような **CORSエラー** が発生することがあります。
+
+>Access to fetch at 'file:///.../common-passwords.txt' from origin 'null' has been blocked by CORS policy
+
+### ✅ 回避策（いずれか）
+
+#### 回避策① Python の HTTP サーバを使用する
+
+ターミナルで次のように実行します。
+
+```bash
+python3 -m http.server 8000
+```
+
+その後、ブラウザで http://localhost:8000/index.html にアクセスします。
+
+#### 回避策② VS Code + Live Server 拡張を使用
+
+拡張機能「Live Server」をインストールする。
+
+index.html を右クリック → 「Open with Live Server」
+
+#### 回避策③ 任意の Web サーバでホスティングする
+
+Apache、Nginx、GitHub Pages、Netlify などの一般的な HTTP サーバで公開すれば、fetch() は正常に動作します。
+
 ## 📝 ライセンス
 
 [MIT License](LICENSE) - ご自由にお使いください。
