@@ -198,7 +198,13 @@ function updateUI(result) {
     // 改善提案更新
     if (feedback.length > 0 && score < 100) {
         suggestions.classList.add('show');
-        suggestionsList.innerHTML = feedback.map(f => `<li>${f}</li>`).join('');
+        // XSS対策: innerHTML を使わず DOM API で安全に要素を作成
+        suggestionsList.innerHTML = ''; // リストをクリア
+        feedback.forEach(f => {
+            const li = document.createElement('li');
+            li.textContent = f; // HTMLエスケープされる
+            suggestionsList.appendChild(li);
+        });
     } else {
         suggestions.classList.remove('show');
     }

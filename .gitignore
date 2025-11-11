@@ -1,2 +1,5 @@
 *.BAK
 *.bak
+
+# Claude
+.claude/
