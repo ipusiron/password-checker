@@ -1,3 +1,34 @@
+<!--
+---
+id: day001
+slug: password-checker
+
+title: "Password Checker"
+
+subtitle_ja: "リアルタイムでパスワードの強度を評価"
+subtitle_en: "Real-time password strength evaluation"
+
+description_ja: "入力と同時にパスワードの強度をスコア化し、改善点を提案するWebツール"
+description_en: "A web tool that scores password strength in real-time and suggests improvements"
+
+category_ja:
+  - 認証
+category_en:
+  - Authentication
+
+difficulty: 1
+
+tags:
+  - password
+  - security
+
+repo_url: "https://github.com/ipusiron/password-checker"
+demo_url: "https://ipusiron.github.io/password-checker/"
+
+hub: true
+---
+-->
+
 # 🔐 パスワード強度チェッカー
 
 リアルタイムでパスワードの強度を評価する、日本語対応のWebアプリケーションです。
