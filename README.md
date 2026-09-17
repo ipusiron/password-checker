@@ -29,7 +29,7 @@ hub: true
 ---
 -->
 
-# Password Checker – パスワード強度チェッカー
+# Password Checker - パスワード強度チェッカー
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/ipusiron/password-checker?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ipusiron/password-checker?style=social)
@@ -37,7 +37,7 @@ hub: true
 ![GitHub license](https://img.shields.io/github/license/ipusiron/password-checker)
 [![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://ipusiron.github.io/password-checker/)
 
-**Day001 - 生成AIで作るセキュリティツール200**
+**Day001 - 生成AIで作るセキュリティツール100**
 
 リアルタイムでパスワードの強度を評価する、日本語対応のWebアプリケーションです。
 
@@ -353,9 +353,9 @@ password-checker/
 
 ## 🛠️ このツールについて
 
-本ツールは、「生成AIで作るセキュリティツール200」プロジェクトの一環として開発されました。
+本ツールは、「生成AIで作るセキュリティツール100」プロジェクトの一環として開発されました。
 このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開していく取り組みを行っています。
 
 プロジェクトの詳細や他のツールについては、以下のページをご覧ください。
 
-🔗 [https://akademeia.info/?page_id=44607](https://akademeia.info/?page_id=44607)
+🔗 [https://akademeia.info/?page_id=42163](https://akademeia.info/?page_id=42163)
