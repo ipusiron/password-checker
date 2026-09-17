@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パスワード強度チェッカー</title>
     <link rel="stylesheet" href="style.css">
@@ -13,6 +15,7 @@
 -->
 
 <body>
+    <noscript>このツールは JavaScript が必要です</noscript>
     <div class="container">
         <h1>🔐 パスワード強度チェッカー</h1>
 
@@ -23,44 +26,60 @@
 
         <div class="input-group">
             <label for="passwordInput">パスワード</label>
-            <input
-                type="password"
-                id="passwordInput"
-                class="password-input"
-                placeholder="パスワードを入力してください"
-                autocomplete="off"
-            >
-            <span class="toggle-password" id="togglePassword" aria-label="パスワード表示切替">👁️</span>
+            <div class="password-field">
+                <input
+                    type="password"
+                    id="passwordInput"
+                    class="password-input"
+                    placeholder="パスワードを入力してください"
+                    autocomplete="new-password"
+                    spellcheck="false"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    data-bwignore
+                >
+                <button type="button" id="togglePassword" class="toggle-password" aria-pressed="false" aria-label="パスワードを表示"><span aria-hidden="true">👁️</span></button>
+            </div>
         </div>
+
+        <p class="dictionary-status" id="dictionaryStatus" role="status"></p>
 
         <div class="strength-meter">
             <div class="strength-meter-fill" id="strengthMeterFill"></div>
         </div>
 
-        <div class="strength-text" id="strengthText"></div>
-
-        <div class="score-display" id="scoreDisplay">0</div>
+        <div aria-live="polite" aria-atomic="true">
+            <div class="strength-text" id="strengthText"></div>
+            <div class="score-display" id="scoreDisplay">0</div>
+        </div>
 
         <div class="criteria-list">
-            <div class="criteria-item" id="lengthCriteria">
-                <span class="criteria-icon">❌</span>
+            <div class="criteria-item" id="lengthCriteria8">
+                <span class="criteria-icon" aria-hidden="true">❌</span>
+                <span class="criteria-status visually-hidden">未達成</span>
                 <span>8文字以上</span>
             </div>
-            <div class="criteria-item" id="uppercaseCriteria">
-                <span class="criteria-icon">❌</span>
-                <span>大文字を含む（A-Z）</span>
+            <div class="criteria-item" id="lengthCriteria12">
+                <span class="criteria-icon" aria-hidden="true">❌</span>
+                <span class="criteria-status visually-hidden">未達成</span>
+                <span>12文字以上（推奨）</span>
             </div>
-            <div class="criteria-item" id="lowercaseCriteria">
-                <span class="criteria-icon">❌</span>
-                <span>小文字を含む（a-z）</span>
+            <div class="criteria-item" id="lengthCriteria16">
+                <span class="criteria-icon" aria-hidden="true">❌</span>
+                <span class="criteria-status visually-hidden">未達成</span>
+                <span>16文字以上</span>
             </div>
-            <div class="criteria-item" id="numberCriteria">
-                <span class="criteria-icon">❌</span>
-                <span>数字を含む（0-9）</span>
+            <div class="criteria-item" id="varietyCriteria">
+                <span class="criteria-icon" aria-hidden="true">❌</span>
+                <span class="criteria-status visually-hidden">未達成</span>
+                <span>文字の種類が2つ以上（大文字・小文字・数字・記号・その他）</span>
             </div>
-            <div class="criteria-item" id="specialCriteria">
-                <span class="criteria-icon">❌</span>
-                <span>特殊文字を含む（!@#$%など）</span>
+            <div class="criteria-item" id="commonCriteria">
+                <span class="criteria-icon" aria-hidden="true">❌</span>
+                <span class="criteria-status visually-hidden">未達成</span>
+                <span>よく使われる単語を含まない</span>
             </div>
         </div>
 
@@ -70,6 +89,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
