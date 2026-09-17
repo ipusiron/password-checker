@@ -47,7 +47,17 @@ hub: true
 
 ## 📸 スクリーンショット
 
-![パスワード強度チェッカーのスクリーンショット](screenshot.png)
+入力前の画面です。
+
+![入力前のパスワード強度チェッカーと新しい5項目の評価基準](screenshot.png)
+
+50点・「普通」と評価された例です。
+
+![50点・普通の評価結果と新しい5項目の評価基準](ss_score50_fair.png)
+
+70点・「良い」と評価された例です。
+
+![70点・良いの評価結果と新しい5項目の評価基準](ss_score70_good.png)
 
 ## ✨ 機能
 
@@ -321,9 +331,11 @@ password-checker/
 ├── style.css            # 表示・モバイル対応・動きを減らす設定
 ├── common-passwords.txt # 同梱のパスワード辞書
 ├── package.json         # ES module設定と依存なしのテストコマンド
-├── screenshot.png       # 既存の画面例（旧評価基準・撮り直し対象）
+├── screenshot.png       # 入力前の画面（代表画像）
 ├── ss_score40.png       # 旧スコアの画像（本文からの参照は削除済み）
 ├── ss_score70.png       # 旧スコアの画像（本文からの参照は削除済み）
+├── ss_score50_fair.png  # 新方式の50点・普通の画面例
+├── ss_score70_good.png  # 新方式の70点・良いの画面例
 ├── CLAUDE.md            # 構成・採点仕様・開発手順
 ├── README.md            # 本ドキュメント
 └── LICENSE              # MITライセンス
