@@ -26,12 +26,13 @@ Note: Opening `index.html` directly via `file://` causes CORS errors for ES modu
 Single-page vanilla JavaScript application without external dependencies:
 
 - **index.html** - UI structure with password input, strength meter, criteria checklist, and suggestions panel
-- **script.js** - DOM events, dictionary loading, and UI updates; imports scoring.js as an ES module
-- **scoring.js** - Pure `checkPasswordStrength(password, dictionary)` and `parseDictionary(text)` exports; no DOM or network access
+- **script.js** - DOM events, dictionary loading, and UI updates; imports scoring.js as an ES module and reads wording from `window.I18n`
+- **i18n.js** - Japanese and English dictionaries plus `t`/`apply`/`init`/`setLanguage`; a classic script loaded before script.js, so it runs in Node through `new Function` as well
+- **scoring.js** - Pure `checkPasswordStrength(password, dictionary)` and `parseDictionary(text)` exports; no DOM, no network and no wording (feedback is `{ key, params }`)
 - **style.css** - Styling with responsive design
 - **common-passwords.txt** - Dictionary of common weak passwords (loaded via fetch)
 - **package.json** - ES module configuration and `npm test` (`node --test`)
-- **test/** - scoring.test.js, readme.test.js, html.test.js; includes ten fixed examples and README table consistency checks
+- **test/** - helper.js, i18n.test.js, scoring.test.js, readme.test.js, html.test.js; includes ten fixed examples, README table consistency checks and the ja/en dictionary checks
 - **.github/workflows/test.yml** - GitHub Actions: checkout, setup-node (Node 22), npm test on push and pull_request
 
 ### Password Scoring System (scoring.js)
@@ -90,6 +91,7 @@ Strength levels: very-weak (0-20), weak (21-40), fair (41-60), good (61-80), str
 | noCommon | commonCriteria | よく使われる単語を含まない; neither exact nor eligible partial match |
 
 For empty input, only noCommon is true (there is no dictionary match); strength and feedback remain empty.
+`feedback` entries are `{ key, params }`; the wording lives in i18n.js and is resolved with `I18n.t()` right before display.
 After all penalty messages, append the length hint (remaining characters to eight; recommend 12 for n=8-11, 16 for n=12-15), then the variety hint if exactly one class is present.
 
 **Fixed examples using the bundled dictionary:**
@@ -111,6 +113,8 @@ This is an educational heuristic, not an entropy estimate or NIST compliance che
 
 ## Key Implementation Details
 
+- Language: `I18n.init()` resolves `?lang=` then localStorage (`password-checker-language`) then `navigator.language`; the toggle re-renders the dictionary notice, the password toggle and the whole result, so nothing on screen is lost
+- State is never inferred from displayed text: the dictionary failure lives in `dictionaryStatus.dataset.state`, and the show/hide state comes from the input's `type`
 - XSS protection: Uses `textContent` instead of `innerHTML` for user-provided feedback
 - Password toggle: native button; switches input type, aria-pressed and aria-label; decorative emoji is aria-hidden
 - Common passwords loaded asynchronously on DOMContentLoaded; check response.ok, then parseDictionary (trim, lowercase, remove empty lines and duplicates; LF/CRLF)

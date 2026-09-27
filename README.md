@@ -31,6 +31,8 @@ hub: true
 
 # Password Checker - パスワード強度チェッカー
 
+[English](README.en.md) · 日本語
+
 ![GitHub Repo stars](https://img.shields.io/github/stars/ipusiron/password-checker?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ipusiron/password-checker?style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ipusiron/password-checker)
@@ -39,7 +41,7 @@ hub: true
 
 **Day001 - 生成AIで作るセキュリティツール100**
 
-リアルタイムでパスワードの強度を評価する、日本語対応のWebアプリケーションです。
+リアルタイムでパスワードの強度を評価する、日本語と英語に対応したWebアプリケーションです。
 
 ## 🌐 デモページ
 
@@ -66,6 +68,7 @@ hub: true
 - 📊 **視覚的な強度表示** - プログレスバーと色分けで直感的に理解
 - 🔢 **スコア表示** - 0〜100点で数値化
 - 👁️ **パスワード表示/非表示** - プライバシーを保護
+- 🌐 **日本語・英語の切り替え** - 右上のボタンで切り替え、選択はブラウザーに記憶される
 
 ### 評価基準
 
@@ -200,11 +203,13 @@ python3 -m http.server 8000
 - **CSS3** - スタイリング（グラデーション、トランジション）
 - **JavaScript** (Vanilla) - ロジックとDOM操作
 - **正規表現** - パスワードパターンの検証
+- **軽量な自前i18n** (`i18n.js`) - 日本語と英語の辞書、`data-i18n`属性による差し替え
 
 ## 🔒 セキュリティ
 
 パスワードの評価はブラウザー内で行います。
-本ツールは入力されたパスワードを外部に送信せず、CookieやWeb Storageにも保存しません。
+本ツールは入力されたパスワードを外部に送信せず、Cookieにも保存しません。
+Web Storage（`localStorage`）に保存するのは、選んだ表示言語（`ja`または`en`）だけです。
 ページの読み込み時は、HTML、CSS、JavaScript、辞書ファイルを同じ配信元から取得します。
 入力内容は入力欄と評価処理で使用するため、入力直後にメモリから消去する仕組みではありません。
 ブラウザー拡張など、本ツール外の動作までは制御できません。
@@ -215,6 +220,15 @@ python3 -m http.server 8000
 - ページと辞書の読み込み後は、インターネットを切断しても利用できる。
 - プログラムをダウンロードして、ローカル環境で実行する。
 - ブラウザーのデベロッパーツールやパケットキャプチャーツールでネットワーク監視する。
+
+## 🌐 表示言語
+
+画面の右上にあるボタンで、日本語と英語を切り替えます。
+
+- 初回は`?lang=ja`・`?lang=en`のクエリー、次に前回の選択、最後にブラウザーの言語設定の順で決める
+- 選んだ言語は`localStorage`のキー`password-checker-language`に保存する
+- 入力中のパスワードや評価結果は、切り替えても消えない
+- 採点のしきい値・減点・強度の区分は言語に依存しない（`scoring.js`は文言を持たず、キーだけを返す）
 
 ## 📚 カスタム辞書
 
@@ -300,7 +314,7 @@ Node.js 22以上で、次のコマンドを実行します。
 npm test
 ```
 
-Node.js標準の`node --test`で採点、READMEの強度テスト表と計算結果の一致、HTMLのセキュリティとアクセシビリティの要件を検証します。
+Node.js標準の`node --test`で採点、READMEの強度テスト表と計算結果の一致、HTMLのセキュリティとアクセシビリティの要件、日本語と英語の辞書の整合性を検証します。
 GitHub Actionsでもpushとpull_requestのたびにNode.js 22で自動実行します。
 
 ## 👏 クレジット
@@ -321,11 +335,14 @@ password-checker/
 │   └── workflows/
 │       └── test.yml      # push・pull_request時の自動テスト
 ├── test/
+│   ├── helper.js         # i18n.jsの読み込みなどテスト用の補助
+│   ├── i18n.test.js      # 日英の辞書とキーの整合性の検証
 │   ├── scoring.test.js   # 採点仕様と辞書のテスト
 │   ├── readme.test.js    # READMEの表と採点結果の一致検証
 │   └── html.test.js      # HTMLのセキュリティ・アクセシビリティ検証
 ├── .gitignore           # Gitの追跡対象外設定
 ├── index.html           # 入力欄・強度表示・評価基準の画面
+├── i18n.js              # 日本語・英語のメッセージと切り替え
 ├── script.js            # DOM操作と辞書の読み込み
 ├── scoring.js           # DOMに依存しない採点・辞書解析
 ├── style.css            # 表示・モバイル対応・動きを減らす設定
@@ -337,7 +354,8 @@ password-checker/
 ├── ss_score50_fair.png  # 新方式の50点・普通の画面例
 ├── ss_score70_good.png  # 新方式の70点・良いの画面例
 ├── CLAUDE.md            # 構成・採点仕様・開発手順
-├── README.md            # 本ドキュメント
+├── README.md            # 本ドキュメント（日本語）
+├── README.en.md         # 英語版ドキュメント
 └── LICENSE              # MITライセンス
 ```
 

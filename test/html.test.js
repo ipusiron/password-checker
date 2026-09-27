@@ -12,6 +12,7 @@ test('meta CSP is restricted to self and omits header-only directives', () => {
 });
 
 test('module script, no inline scripts, event handlers or style attributes', () => {
+    assert.match(html, /<script src="i18n\.js"><\/script>/);
     assert.match(html, /<script type="module" src="script\.js"><\/script>/);
     assert.doesNotMatch(html, /\son[a-z]+\s*=/i);
     assert.doesNotMatch(html, /\sstyle\s*=/i);
@@ -31,7 +32,7 @@ test('accessible toggle, live score, dictionary status and noscript fallback', (
     assert.match(html, /<div aria-live="polite" aria-atomic="true">\s*<div[^>]*id="strengthText"[^>]*><\/div>\s*<div[^>]*id="scoreDisplay"[^>]*>0<\/div>\s*<\/div>/);
     assert.match(html, /id="dictionaryStatus" role="status"/);
     assert.equal([...html.matchAll(/aria-live=/g)].length, 1);
-    assert.match(html, /<noscript>このツールは JavaScript が必要です<\/noscript>/);
+    assert.match(html, /<noscript>このツールは JavaScript が必要です \/ This tool requires JavaScript<\/noscript>/);
 });
 
 test('exactly five new criteria have hidden icons and accessible state text', () => {
