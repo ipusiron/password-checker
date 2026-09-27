@@ -4,6 +4,9 @@ import { readFileSync } from 'node:fs';
 import { checkPasswordStrength, parseDictionary } from '../scoring.js';
 
 const dictionary = parseDictionary(readFileSync(new URL('../common-passwords.txt', import.meta.url), 'utf8'));
+
+/** feedback は { key, params } なので、キーだけを取り出して比べる */
+const keys = (result) => result.feedback.map((item) => item.key);
 const samples = [
     ['password', 0, 'very-weak'],
     ['P@ssw0rd1!', 50, 'fair'],
@@ -46,7 +49,7 @@ test('fewer than eight code points scores zero even with five character classes'
     const result = checkPasswordStrength('aB7!😀本語', []);
     assert.equal(result.score, 0);
     assert.equal(result.strength, 'very-weak');
-    assert.ok(result.feedback.includes('あと1文字追加してください（8文字未満はどんな構成でも弱いです）'));
+    assert.deepEqual(result.feedback.at(-1), { key: 'feedback.addChars', params: { count: 1 } });
 });
 
 for (const [password, score] of [['azjyazjy', 20], ['azjyazjY', 30], ['azjyazY7', 40], ['azjyaY7!', 50], ['azjyY7!語', 50], ['😀😁😂😃😄😅😆😉', 20]]) {
@@ -70,20 +73,20 @@ test('dictionary exact match is case-insensitive and never also a partial match'
     const result = checkPasswordStrength('PASSWORD', ['PASSWORD', 'word']);
     assert.equal(result.score, 0);
     assert.equal(result.criteria.noCommon, false);
-    assert.equal(result.feedback[0], '⚠️ よく使われる危険なパスワードそのものです！');
-    assert.equal(result.feedback.filter(message => message.startsWith('⚠️')).length, 1);
+    assert.equal(result.feedback[0].key, 'feedback.exactMatch');
+    assert.equal(keys(result).filter(key => key.startsWith('feedback.word') || key === 'feedback.exactMatch').length, 1);
 });
 
-for (const [password, penalty, message] of [
-    ['xpassword', 30, '⚠️ よく使われる単語 "password" が含まれています'],
-    ['mypasswordxy', 10, '⚠️ 一部に危険な単語 "password" が含まれています'],
-    ['mypasswordxyazjy', 10, '⚠️ 長くても構成が単純で "password" を含むため減点されます'],
-    ['Mypasswordxyazj!', 0, 'ℹ️ 注意：よく使われる単語 "password" が含まれていますが、構成が十分に強力です']
+for (const [password, penalty, key] of [
+    ['xpassword', 30, 'feedback.wordShort'],
+    ['mypasswordxy', 10, 'feedback.wordMedium'],
+    ['mypasswordxyazjy', 10, 'feedback.wordLongSimple'],
+    ['Mypasswordxyazj!', 0, 'feedback.wordLongOk']
 ]) {
     test(`partial match stage: ${password}`, () => {
         const result = checkPasswordStrength(password, dictionary);
         assert.equal(result.score, Math.max(0, checkPasswordStrength(password, []).score - penalty));
-        assert.equal(result.feedback[0], message);
+        assert.deepEqual(result.feedback[0], { key, params: { word: 'password' } });
         assert.equal(result.criteria.noCommon, false);
     });
 }
@@ -96,7 +99,7 @@ test('long partial match exemption requires both uppercase and ASCII symbol', ()
 
 test('longest partial match is reported independently of dictionary order', () => {
     for (const words of [dictionary, [...dictionary].reverse()]) {
-        assert.equal(checkPasswordStrength('mypassword123', words).feedback[0], '⚠️ 一部に危険な単語 "password123" が含まれています');
+        assert.deepEqual(checkPasswordStrength('mypassword123', words).feedback[0], { key: 'feedback.wordMedium', params: { word: 'password123' } });
     }
 });
 
@@ -112,7 +115,7 @@ test('repeating any code point at least three times subtracts ten only once', ()
     assert.equal(checkPasswordStrength('aaazjyux', []).score, 10);
     const result = checkPasswordStrength('😀😀😀azjyx', []);
     assert.equal(result.score, 20);
-    assert.ok(result.feedback.includes('同じ文字の連続を避けてください'));
+    assert.ok(keys(result).includes('feedback.repeat'));
     assert.equal(checkPasswordStrength('aaazzzjy', []).score, 10);
 });
 
@@ -126,7 +129,7 @@ for (const run of ['abcd', 'dcba', '1234', '4321', 'qwer', 'rewq', 'uiop', 'poiu
         const result = checkPasswordStrength('azjy' + run, []);
         const varietyPoints = /[0-9A-Z]/.test(run) ? 10 : 0;
         assert.equal(result.score, 20 + varietyPoints - 10);
-        assert.equal(result.feedback.filter(message => message.startsWith('連続した')).length, 1);
+        assert.equal(keys(result).filter(key => key === 'feedback.sequence').length, 1);
     });
 }
 
@@ -136,24 +139,22 @@ test('multiple sequences incur only one ten-point penalty', () => {
 
 test('short, wrapping, non-ASCII and mixed non-sequences are not penalized', () => {
     for (const password of ['azjyabc7', 'azjy8901', 'azjyxyzA', 'azjyab12', 'azjyあいうえ']) {
-        assert.ok(!checkPasswordStrength(password, []).feedback.some(message => message.startsWith('連続した')));
+        assert.ok(!keys(checkPasswordStrength(password, [])).includes('feedback.sequence'));
     }
 });
 
 test('penalty feedback precedes length and variety hints in specification order', () => {
     const result = checkPasswordStrength('aaaabcda', ['abcd']);
     assert.deepEqual(result.feedback, [
-        '⚠️ よく使われる単語 "abcd" が含まれています',
-        '同じ文字の連続を避けてください',
-        '連続した文字や数字、キーボード配列の並び（abcd・1234・qwerなど）を避けてください',
-        '12文字以上にすると強くなります。単語を3〜4個つなげる方法があります',
-        '文字の種類を増やすと加点されます（大文字・数字・記号など）'
+        { key: 'feedback.wordShort', params: { word: 'abcd' } },
+        { key: 'feedback.repeat' },
+        { key: 'feedback.sequence' },
+        { key: 'feedback.length12' },
+        { key: 'feedback.variety' }
     ]);
-    assert.equal(checkPasswordStrength('azjyazjyazjy', []).feedback[0], '16文字以上にするとさらに強くなります');
-    assert.deepEqual(checkPasswordStrength('aaaaaaaa', ['aaaaaaaa']).feedback.slice(0, 3), [
-        '⚠️ よく使われる危険なパスワードそのものです！',
-        '同じ文字の連続を避けてください',
-        '使われている文字の種類が少なすぎます（3種類以下）'
+    assert.equal(checkPasswordStrength('azjyazjyazjy', []).feedback[0].key, 'feedback.length16');
+    assert.deepEqual(keys(checkPasswordStrength('aaaaaaaa', ['aaaaaaaa'])).slice(0, 3), [
+        'feedback.exactMatch', 'feedback.repeat', 'feedback.fewDistinct'
     ]);
 });
 
@@ -175,7 +176,7 @@ test('upper and lower bounds; advisory feedback remains at 100', () => {
     assert.equal(checkPasswordStrength('a', ['a']).score, 0);
     const result = checkPasswordStrength('MyPassword!Battery9Staple', dictionary);
     assert.equal(result.score, 100);
-    assert.ok(result.feedback[0].startsWith('ℹ️'));
+    assert.equal(result.feedback[0].key, 'feedback.wordLongOk');
 });
 
 test('parseDictionary handles CRLF, whitespace, case, blanks and duplicate entries', () => {
@@ -187,5 +188,5 @@ test('scoring leaves caller dictionary untouched and returns fresh results', () 
     const words = Object.freeze(['PASSWORD', 'word']);
     const first = checkPasswordStrength('mypassword123', words);
     first.feedback.length = 0;
-    assert.equal(checkPasswordStrength('mypassword123', words).feedback[0], '⚠️ 一部に危険な単語 "password" が含まれています');
+    assert.deepEqual(checkPasswordStrength('mypassword123', words).feedback[0], { key: 'feedback.wordMedium', params: { word: 'password' } });
 });

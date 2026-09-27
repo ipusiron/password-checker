@@ -25,7 +25,11 @@ function hasSequence(lowerPassword) {
     });
 }
 
-/** DOMや通信に依存しない教育用のパスワード評価。 */
+/**
+ * DOMや通信に依存しない教育用のパスワード評価。
+ * feedback は表示用の文字列ではなく { key, params } を返す。
+ * 文言は表示の直前に i18n.js の t() で訳す（採点のしきい値やロジックは言語に依存しない）。
+ */
 export function checkPasswordStrength(password, dictionary = []) {
     const characters = [...password];
     const n = characters.length;
@@ -59,32 +63,32 @@ export function checkPasswordStrength(password, dictionary = []) {
 
     if (exactMatch) {
         score -= 50;
-        feedback.push('⚠️ よく使われる危険なパスワードそのものです！');
+        feedback.push({ key: 'feedback.exactMatch' });
     } else if (matchedWord) {
         if (n < 12) {
             score -= 30;
-            feedback.push(`⚠️ よく使われる単語 "${matchedWord}" が含まれています`);
+            feedback.push({ key: 'feedback.wordShort', params: { word: matchedWord } });
         } else if (n < 16) {
             score -= 10;
-            feedback.push(`⚠️ 一部に危険な単語 "${matchedWord}" が含まれています`);
+            feedback.push({ key: 'feedback.wordMedium', params: { word: matchedWord } });
         } else if (!(hasUppercase && hasSymbol)) {
             score -= 10;
-            feedback.push(`⚠️ 長くても構成が単純で "${matchedWord}" を含むため減点されます`);
+            feedback.push({ key: 'feedback.wordLongSimple', params: { word: matchedWord } });
         } else {
-            feedback.push(`ℹ️ 注意：よく使われる単語 "${matchedWord}" が含まれていますが、構成が十分に強力です`);
+            feedback.push({ key: 'feedback.wordLongOk', params: { word: matchedWord } });
         }
     }
     if (/(.)\1{2,}/u.test(password)) {
         score -= 10;
-        feedback.push('同じ文字の連続を避けてください');
+        feedback.push({ key: 'feedback.repeat' });
     }
     if (new Set(characters).size <= 3) {
         score -= 20;
-        feedback.push('使われている文字の種類が少なすぎます（3種類以下）');
+        feedback.push({ key: 'feedback.fewDistinct' });
     }
     if (hasSequence(lowerPassword)) {
         score -= 10;
-        feedback.push('連続した文字や数字、キーボード配列の並び（abcd・1234・qwerなど）を避けてください');
+        feedback.push({ key: 'feedback.sequence' });
     }
 
     score = Math.min(Math.max(score, 0), 100);
@@ -94,9 +98,9 @@ export function checkPasswordStrength(password, dictionary = []) {
     else if (score <= 60) strength = 'fair';
     else if (score <= 80) strength = 'good';
 
-    if (n < 8) feedback.push(`あと${8 - n}文字追加してください（8文字未満はどんな構成でも弱いです）`);
-    else if (n < 12) feedback.push('12文字以上にすると強くなります。単語を3〜4個つなげる方法があります');
-    else if (n < 16) feedback.push('16文字以上にするとさらに強くなります');
-    if (variety === 1) feedback.push('文字の種類を増やすと加点されます（大文字・数字・記号など）');
+    if (n < 8) feedback.push({ key: 'feedback.addChars', params: { count: 8 - n } });
+    else if (n < 12) feedback.push({ key: 'feedback.length12' });
+    else if (n < 16) feedback.push({ key: 'feedback.length16' });
+    if (variety === 1) feedback.push({ key: 'feedback.variety' });
     return { score, strength, criteria, feedback };
 }

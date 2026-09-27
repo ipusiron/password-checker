@@ -6,6 +6,7 @@
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パスワード強度チェッカー</title>
+    <meta name="description" content="長さを重視した採点と辞書照合でパスワードの強度をリアルタイムに評価し、改善点を提案するWebツール">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -15,23 +16,27 @@
 -->
 
 <body>
-    <noscript>このツールは JavaScript が必要です</noscript>
+    <noscript>このツールは JavaScript が必要です / This tool requires JavaScript</noscript>
     <div class="container">
-        <h1>🔐 パスワード強度チェッカー</h1>
+        <div class="app-header">
+            <h1 data-i18n="app.heading">🔐 パスワード強度チェッカー</h1>
+            <button type="button" id="langToggle" class="lang-toggle" data-i18n="app.langButton" data-i18n-aria-label="app.langAria" aria-label="言語を切り替える">English</button>
+        </div>
 
         <div class="privacy-note">
-            このツールは完全に <strong>ブラウザー内</strong> で動作します。<br>
-            入力されたパスワードは <strong>外部に送信されず</strong>、保存もされません。
+            <span data-i18n="privacy.lead1">このツールは完全に </span><strong data-i18n="privacy.strong1">ブラウザー内</strong><span data-i18n="privacy.tail1"> で動作します。</span><br>
+            <span data-i18n="privacy.lead2">入力されたパスワードは </span><strong data-i18n="privacy.strong2">外部に送信されず</strong><span data-i18n="privacy.tail2">、保存もされません。</span>
         </div>
 
         <div class="input-group">
-            <label for="passwordInput">パスワード</label>
+            <label for="passwordInput" data-i18n="form.passwordLabel">パスワード</label>
             <div class="password-field">
                 <input
                     type="password"
                     id="passwordInput"
                     class="password-input"
                     placeholder="パスワードを入力してください"
+                    data-i18n-placeholder="form.passwordPlaceholder"
                     autocomplete="new-password"
                     spellcheck="false"
                     autocapitalize="off"
@@ -59,36 +64,37 @@
             <div class="criteria-item" id="lengthCriteria8">
                 <span class="criteria-icon" aria-hidden="true">❌</span>
                 <span class="criteria-status visually-hidden">未達成</span>
-                <span>8文字以上</span>
+                <span data-i18n="criteria.length8">8文字以上</span>
             </div>
             <div class="criteria-item" id="lengthCriteria12">
                 <span class="criteria-icon" aria-hidden="true">❌</span>
                 <span class="criteria-status visually-hidden">未達成</span>
-                <span>12文字以上（推奨）</span>
+                <span data-i18n="criteria.length12">12文字以上（推奨）</span>
             </div>
             <div class="criteria-item" id="lengthCriteria16">
                 <span class="criteria-icon" aria-hidden="true">❌</span>
                 <span class="criteria-status visually-hidden">未達成</span>
-                <span>16文字以上</span>
+                <span data-i18n="criteria.length16">16文字以上</span>
             </div>
             <div class="criteria-item" id="varietyCriteria">
                 <span class="criteria-icon" aria-hidden="true">❌</span>
                 <span class="criteria-status visually-hidden">未達成</span>
-                <span>文字の種類が2つ以上（大文字・小文字・数字・記号・その他）</span>
+                <span data-i18n="criteria.variety2">文字の種類が2つ以上（大文字・小文字・数字・記号・その他）</span>
             </div>
             <div class="criteria-item" id="commonCriteria">
                 <span class="criteria-icon" aria-hidden="true">❌</span>
                 <span class="criteria-status visually-hidden">未達成</span>
-                <span>よく使われる単語を含まない</span>
+                <span data-i18n="criteria.noCommon">よく使われる単語を含まない</span>
             </div>
         </div>
 
         <div class="suggestions" id="suggestions">
-            <h3>💡 改善のヒント</h3>
+            <h3 data-i18n="suggestions.heading">💡 改善のヒント</h3>
             <ul id="suggestionsList"></ul>
         </div>
     </div>
 
+    <script src="i18n.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

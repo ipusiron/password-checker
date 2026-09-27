@@ -1,8 +1,12 @@
 import { checkPasswordStrength, parseDictionary } from './scoring.js';
 
+// i18n.js は index.html で先に読み込まれる通常スクリプト
+const I18n = window.I18n;
+
 // DOM要素の取得
 const passwordInput = document.getElementById('passwordInput');
 const togglePassword = document.getElementById('togglePassword');
+const langToggle = document.getElementById('langToggle');
 const strengthMeterFill = document.getElementById('strengthMeterFill');
 const strengthText = document.getElementById('strengthText');
 const scoreDisplay = document.getElementById('scoreDisplay');
@@ -12,6 +16,8 @@ const dictionaryStatus = document.getElementById('dictionaryStatus');
 
 // よく使われる弱いパスワードのリスト
 let commonPasswords = [];
+
+I18n.init();
 
 document.addEventListener("DOMContentLoaded", () => {
     fetch('common-passwords.txt')
@@ -24,19 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (passwordInput.value) evaluateInput();
         })
         .catch(() => {
-            dictionaryStatus.textContent = '辞書ファイルを読み込めませんでした。よく使われるパスワードとの照合なしで評価しています。ローカルで開いている場合は README の「ローカルでの動作とCORS制限について」を参照してください。';
+            // 表示中の文字列ではなく dataset に状態を持たせる（言語を切り替えても失われない）
+            dictionaryStatus.dataset.state = 'error';
+            renderDictionaryStatus();
         });
 });
-
-// 強度ラベルの定義
-const strengthLabels = {
-    '': '',
-    'very-weak': '非常に弱い',
-    'weak': '弱い',
-    'fair': '普通',
-    'good': '良い',
-    'strong': '強力'
-};
 
 // 強度に応じた色の定義
 const strengthColors = {
@@ -49,16 +47,39 @@ const strengthColors = {
 };
 
 // パスワードの表示/非表示切り替え
-togglePassword.addEventListener('click', function() {
+togglePassword.addEventListener('click', () => {
     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
     passwordInput.setAttribute('type', type);
-    this.querySelector('span').textContent = type === 'password' ? '👁️' : '🙈';
-    this.setAttribute('aria-pressed', String(type === 'text'));
-    this.setAttribute('aria-label', type === 'password' ? 'パスワードを表示' : 'パスワードを隠す');
+    renderPasswordToggle();
+});
+
+// 言語の切り替え
+langToggle.addEventListener('click', () => I18n.setLanguage(I18n.language === 'ja' ? 'en' : 'ja'));
+document.addEventListener('languagechange', () => {
+    renderDictionaryStatus();
+    renderPasswordToggle();
+    evaluateInput();
 });
 
 // パスワード入力時の処理
 passwordInput.addEventListener('input', evaluateInput);
+
+/**
+ * 表示/非表示ボタンの見た目とラベルを、いまの入力欄の型から描き直す
+ */
+function renderPasswordToggle() {
+    const hidden = passwordInput.getAttribute('type') === 'password';
+    togglePassword.querySelector('span').textContent = hidden ? '👁️' : '🙈';
+    togglePassword.setAttribute('aria-pressed', String(!hidden));
+    togglePassword.setAttribute('aria-label', I18n.t(hidden ? 'form.showPassword' : 'form.hidePassword'));
+}
+
+/**
+ * 辞書の読み込み状態を、いまの言語で描き直す
+ */
+function renderDictionaryStatus() {
+    dictionaryStatus.textContent = dictionaryStatus.dataset.state === 'error' ? I18n.t('dictionary.error') : '';
+}
 
 /**
  * 現在の入力と読み込み済みの辞書で画面を更新する
@@ -77,14 +98,14 @@ function updateUI(result) {
     // スコア表示
     scoreDisplay.textContent = score;
     scoreDisplay.className = 'score-display';
-    
+
     // 強度メーター更新
     strengthMeterFill.style.width = `${score}%`;
-    
+
     // 強度テキスト更新
-    strengthText.textContent = strengthLabels[strength];
+    strengthText.textContent = strength ? I18n.t(`strength.${strength}`) : '';
     strengthText.className = `strength-text strength-${strength}`;
-    
+
     // 強度に応じた色設定
     strengthMeterFill.style.backgroundColor = strengthColors[strength];
     if (strength) scoreDisplay.classList.add(`strength-${strength}`);
@@ -101,9 +122,9 @@ function updateUI(result) {
         suggestions.classList.add('show');
         // XSS対策: innerHTML を使わず DOM API で安全に要素を作成
         suggestionsList.replaceChildren();
-        feedback.forEach(f => {
+        feedback.forEach(item => {
             const li = document.createElement('li');
-            li.textContent = f; // HTMLエスケープされる
+            li.textContent = I18n.t(item.key, item.params || {}); // HTMLエスケープされる
             suggestionsList.appendChild(li);
         });
     } else {
@@ -119,8 +140,8 @@ function updateUI(result) {
 function updateCriteria(id, isValid) {
     const element = document.getElementById(id);
     const icon = element.querySelector('.criteria-icon');
-    element.querySelector('.criteria-status').textContent = isValid ? '達成' : '未達成';
-    
+    element.querySelector('.criteria-status').textContent = I18n.t(isValid ? 'criteria.met' : 'criteria.unmet');
+
     if (isValid) {
         element.classList.add('valid');
         icon.textContent = '✅';
@@ -130,4 +151,6 @@ function updateCriteria(id, isValid) {
     }
 }
 
+renderPasswordToggle();
+renderDictionaryStatus();
 evaluateInput();
