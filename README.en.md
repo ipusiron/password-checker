@@ -168,6 +168,46 @@ python3 -m http.server 8000
 Opening `index.html` directly over `file://` does not work, because of the CORS restriction.
 See "Running locally and the CORS restriction" below.
 
+## 🎯 Use cases
+
+### Ways of using this tool in particular
+
+- Seeing how the maximum length of an input field caps the score: people who design sign-up forms check the score that can be reached under a given maximum length. Even with all four character types and no penalties, the score stops at 50 for a maximum of 8 characters, 65 for 12 and 80 for 16, and a score of 100 needs 24 characters. This is material for reviewing designs that cap password length at a small number (the score is an educational guide, not a measure of how hard a password is to guess)
+- Trying an organization's blocklist: IT or general affairs staff add a company name to the custom dictionary and check whether passwords containing it lose points. With the fictional company name examplecorp added, `examplecorp2024` (15 characters) drops from 45 to 35 points, while `Examplecorp2024!` (16 characters, with an uppercase letter and a symbol) stays at 80. You can compare this tool's line, "long enough and varied enough passwords lose no points even when they contain a dictionary word", with your own policy
+- Comparing Japanese passphrases by length: characters outside ASCII count as one type, so a sentence written only in hiragana gains points with length. The 12-character "ねこがこたつでまるくなる" scores 35 and the 16-character "ねこがこたつでまるくなってねむる" scores 50. Families and classes can try the idea of a long sentence that is easy to remember (check separately whether the service accepts Japanese and whether the input method changes the characters)
+
+### Education
+
+- In an information class, students compare the scores of a long sentence that is not in the dictionary and a short word mixed with symbols, and experience the length-first approach (NIST SP 800-63B-4)
+- Students recompute the ten examples in the "Worked examples" table above by hand, split into length points, variety points and penalties
+
+### Work (outside security)
+
+- People who explain an internal password policy show, on one screen, a rule that requires a symbol next to how the score grows when the password gets longer
+
+### Home and family
+
+- When choosing a password for an account shared by the family, enter an example of a similar shape and check that it contains no runs (abcd, 1234) or keyboard rows (such as qwer). Do not enter the real password itself
+
+### Hobbies and creative work
+
+- When writing a weak password for a character in a novel or a game, use the score and the reasons for penalties (a dictionary word, repeated characters and so on) as a reference
+
+### Research
+
+- The scoring function (`scoring.js`) does not depend on the page, so you can run a published list of common passwords through it and study how length relates to the score
+
+### Combining with other tools
+
+- Use [PassCloud](https://ipusiron.github.io/passcloud/) (Day019) to find words that appear often in a password list, and add them to this tool's custom dictionary
+- Use [Token Entropy Estimator](https://ipusiron.github.io/token-entropy-estimator/) (Day048) to estimate the information (bits) of a randomly generated string, and compare it with this tool's length-first score
+- For 4-digit PINs, check their resistance to shoulder surfing and guessing separately with [PIN Threat Simulator](https://ipusiron.github.io/pin-threat-simulator/) (Day088)
+
+### Limitations
+
+- The score is an educational guide and does not compute how many guesses an attacker needs. The dictionary is also small (15 words)
+- Input is processed only in the browser, but the screen can be seen by others, so do not enter a password you actually use
+
 ## 🛠 Built with
 
 - **HTML5** — structure
