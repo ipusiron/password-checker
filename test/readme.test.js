@@ -55,3 +55,25 @@ test('documentation, scoring result, HTML and DOM mapping share the same five cr
         assert.ok(script.includes(`updateCriteria('${id}', criteria.${key})`), `DOM mapping: ${key}`);
     }
 });
+
+test('ユースケースの「このツールならではの使い方」の点数は採点の関数と同じ（日英）', () => {
+    const readmeEn = readFileSync(new URL('../README.en.md', import.meta.url), 'utf8');
+    const score = (password, words = dictionary) => checkPasswordStrength(password, words).score;
+    // 4種類を混ぜ、減点のない並び（連番・連続・辞書の語なし）を最大長で切る
+    const mixed = 'Kq7!mZ2#rT9$wX4%bN6&pL8*';
+    const caps = [8, 12, 16, 24].map(n => score(mixed.slice(0, n)));
+    assert.deepEqual(caps, [50, 65, 80, 100]);
+    assert.ok(readme.includes(`最大長が8字なら${caps[0]}点、12字なら${caps[1]}点、16字なら${caps[2]}点で頭打ちになり、${caps[3]}点には24字が要る`));
+    assert.ok(readmeEn.includes(`the score stops at ${caps[0]} for a maximum of 8 characters, ${caps[1]} for 12 and ${caps[2]} for 16, and a score of ${caps[3]} needs 24`));
+    const withCompany = [...dictionary, 'examplecorp'];
+    const [a0, a1, b1] = [score('examplecorp2024'), score('examplecorp2024', withCompany), score('Examplecorp2024!', withCompany)];
+    assert.deepEqual([a0, a1, b1, score('Examplecorp2024!')], [45, 35, 80, 80]);
+    assert.ok(readme.includes(`\`examplecorp2024\`（15字）は${a0}点から${a1}点に下がる`) && readme.includes(`は${b1}点のまま変わらない`));
+    assert.ok(readmeEn.includes(`drops from ${a0} to ${a1} points`) && readmeEn.includes(`stays at ${b1}`));
+    const [j12, j16] = [score('ねこがこたつでまるくなる'), score('ねこがこたつでまるくなってねむる')];
+    assert.deepEqual([j12, j16], [35, 50]);
+    assert.ok(readme.includes(`「ねこがこたつでまるくなる」（12字）は${j12}点、「ねこがこたつでまるくなってねむる」（16字）は${j16}点`));
+    assert.ok(readmeEn.includes(`scores ${j12} and the 16-character`) && readmeEn.includes(`scores ${j16}.`));
+    assert.equal(dictionary.length, 15);
+    assert.ok(readme.includes(`辞書も${dictionary.length}語と小さい`) && readmeEn.includes(`small (${dictionary.length} words)`));
+});
